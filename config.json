@@ -1,0 +1,23 @@
+{
+    "trading": {
+        "symbols": ["BTCUSD", "ETHUSD", "AAPL", "GOOGL", "TSLA"],
+        "timeframe": "1h",
+        "signal_threshold": 70.0,
+        "max_signals_per_hour": 5
+    },
+    "indicators": {
+        "sma_periods": [20, 50],
+        "rsi_period": 14,
+        "rsi_oversold": 30,
+        "rsi_overbought": 70
+    },
+    "notifications": {
+        "telegram_enabled": true,
+        "whatsapp_enabled": true,
+        "min_confidence": 65.0
+    },
+    "data": {
+        "update_interval_minutes": 15,
+        "history_days": 30
+    }
+}
