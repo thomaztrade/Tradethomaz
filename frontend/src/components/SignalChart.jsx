@@ -1,4 +1,5 @@
-import React, { useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
+import axios from 'axios';
 import { 
   LineChart, 
   Line, 
@@ -15,7 +16,30 @@ import {
   Cell
 } from 'recharts';
 
-function SignalChart({ signals }) {
+function SignalChart() {
+  const [signals, setSignals] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchSignals();
+    const interval = setInterval(fetchSignals, 30000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const fetchSignals = async () => {
+    try {
+      const response = await axios.get('/api/signals');
+      setSignals(response.data.signals || []);
+    } catch (error) {
+      console.error('Error fetching signals:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) {
+    return <div>Carregando gráficos...</div>;
+  }
   const chartData = useMemo(() => {
     if (!signals || signals.length === 0) return [];
 

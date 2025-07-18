@@ -73,6 +73,18 @@ The application follows a modular service-oriented architecture with clear separ
 - **Endpoints**: Sends signals to `/api/signal` endpoint
 - **Error Handling**: Graceful fallback when database service unavailable
 
+### 9. React Frontend (`frontend/`)
+- **Purpose**: Modern React-based user interface for trading signal dashboard
+- **Technology**: React 18, Vite, Recharts for data visualization
+- **Components**: 
+  - App.jsx: Main application routing and state management
+  - Login.jsx: Simple authentication with demo credentials (vip@exemplo.com / 123456)
+  - VIPArea.jsx: Dashboard area for authenticated users
+  - SignalChart.jsx: Interactive charts displaying signal data and analytics
+- **Features**: Real-time signal display, interactive charts, responsive design
+- **Port**: Runs on port 3000 with proxy to Flask API on port 5000
+- **Authentication**: Simple demo login system for development testing
+
 ## Data Flow
 
 1. **Market Data Acquisition**: DataProvider generates synthetic market data for configured symbols
@@ -100,20 +112,26 @@ TWILIO_WHATSAPP_TO=whatsapp:+1234567890
 ### Third-Party Services
 - **Telegram Bot API**: For Telegram messaging
 - **Twilio API**: For WhatsApp messaging via official Business API
-- **Python Packages**: pandas, numpy, requests, twilio, python-dotenv, schedule
+- **Python Packages**: pandas, numpy, requests, twilio, python-dotenv, schedule, flask, flask-cors, flask-sqlalchemy
+- **Node.js Packages**: react, react-dom, axios, recharts, vite, @vitejs/plugin-react
 
 ### Configuration Management
 - **config.json**: Trading parameters, indicator settings, notification preferences
 - **Environment Variables**: Sensitive credentials and API keys
 - **.env file**: Local development configuration
+- **package.json**: Node.js dependencies for React frontend
 
 ## Deployment Strategy
 
 ### Current Architecture
-- **Single Process**: Monolithic application running in one Python process
+- **Multi-Service**: Three main components running simultaneously:
+  - Trading Bot (Python) on background scheduler
+  - Flask Web API (Python) on port 5000  
+  - React Frontend (Node.js) on port 3000
 - **Scheduling**: Internal scheduling using Python schedule library
-- **Persistence**: Local JSON file storage
+- **Persistence**: Hybrid JSON file + SQLite database storage
 - **Logging**: File-based logging with rotation
+- **Frontend**: Modern React SPA with real-time data updates
 
 ### Scalability Considerations
 - **Data Storage**: Hybrid approach with JSON files and SQLite database; ready for PostgreSQL migration
