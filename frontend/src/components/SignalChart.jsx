@@ -242,7 +242,7 @@ function SignalChart() {
               }%
             </div>
             <div style={{ marginBottom: '1rem' }}>
-              <strong>Sinais de Alta Confiança (>80%):</strong> {
+              <strong>Sinais de Alta Confiança (&gt;80%):</strong> {
                 signals.filter(s => (s.confidence || 0) > 80).length
               }
             </div>
