@@ -15,6 +15,7 @@ from src.signal_generator import SignalGenerator
 from src.telegram_service import TelegramService
 from src.whatsapp_service import WhatsAppService
 from src.signal_history import SignalHistory
+from src.database_service import DatabaseService
 from src.logger import setup_logging
 
 
@@ -36,6 +37,7 @@ def main():
         telegram_service = TelegramService()
         whatsapp_service = WhatsAppService()
         signal_history = SignalHistory()
+        database_service = DatabaseService()
         
         def run_signal_check():
             """Execute signal generation and notification process"""
@@ -54,6 +56,9 @@ def main():
                         
                         # Save to history
                         signal_history.save_signal(signal)
+                        
+                        # Save to database
+                        database_service.save_signal_to_database(signal)
                         
                         # Send notifications
                         message = format_signal_message(signal)

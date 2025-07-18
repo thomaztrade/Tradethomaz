@@ -45,6 +45,30 @@ class User(db.Model):
             'last_login': self.last_login.isoformat() if self.last_login else None
         }
 
+class Signal(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    ativo = db.Column(db.String(50), nullable=False)
+    direcao = db.Column(db.String(10), nullable=False)  # compra ou venda
+    horario = db.Column(db.String(10), nullable=False)
+    preco = db.Column(db.Float)
+    confianca = db.Column(db.Float)
+    indicadores = db.Column(db.Text)
+    detalhes = db.Column(db.Text)
+    criado_em = db.Column(db.DateTime, default=datetime.utcnow)
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'ativo': self.ativo,
+            'direcao': self.direcao,
+            'horario': self.horario,
+            'preco': self.preco,
+            'confianca': self.confianca,
+            'indicadores': self.indicadores,
+            'detalhes': self.detalhes,
+            'criado_em': self.criado_em.isoformat() if self.criado_em else None
+        }
+
 # Initialize signal history
 signal_history = SignalHistory()
 
@@ -306,25 +330,84 @@ def login():
         'user': user.to_dict()
     })
 
+@app.route('/api/signal', methods=['POST'])
+def receive_signal():
+    """Receive and store a new trading signal"""
+    data = request.get_json()
+    
+    if not data:
+        return jsonify({'message': 'Dados não fornecidos'}), 400
+    
+    ativo = data.get('ativo') or data.get('symbol')
+    direcao = data.get('direcao') or data.get('action')
+    horario = data.get('horario') or data.get('timestamp', datetime.now().strftime('%H:%M'))
+    preco = data.get('preco') or data.get('price')
+    confianca = data.get('confianca') or data.get('confidence')
+    indicadores = data.get('indicadores') or data.get('indicators')
+    detalhes = data.get('detalhes') or data.get('details')
+
+    if not ativo or not direcao:
+        return jsonify({'message': 'Ativo e direção são obrigatórios'}), 400
+
+    # Convert indicators list to string if needed
+    if isinstance(indicadores, list):
+        indicadores = ', '.join(indicadores)
+
+    novo_sinal = Signal(
+        ativo=ativo,
+        direcao=direcao,
+        horario=horario,
+        preco=preco,
+        confianca=confianca,
+        indicadores=indicadores,
+        detalhes=detalhes
+    )
+    
+    try:
+        db.session.add(novo_sinal)
+        db.session.commit()
+        return jsonify({'message': 'Sinal recebido com sucesso', 'id': novo_sinal.id}), 201
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'message': f'Erro ao salvar sinal: {str(e)}'}), 500
+
 @app.route('/api/signals', methods=['GET'])
 def get_signals():
-    """Get recent trading signals from the bot"""
+    """Get recent trading signals from database and JSON history"""
     try:
-        # Get recent signals from signal history
-        recent_signals = signal_history.get_recent_signals(limit=10)
+        # Get signals from database
+        db_signals = Signal.query.order_by(Signal.criado_em.desc()).limit(10).all()
         
-        # Format signals for API response
+        # Get signals from JSON history (fallback)
+        json_signals = signal_history.get_recent_signals(limit=10)
+        
+        # Format database signals
         formatted_signals = []
-        for signal in recent_signals:
+        for signal in db_signals:
             formatted_signals.append({
-                'symbol': signal.get('symbol', 'Unknown'),
-                'action': signal.get('action', 'unknown'),
-                'price': float(signal.get('price', 0)),
-                'confidence': float(signal.get('confidence', 0)),
-                'timestamp': signal.get('timestamp', ''),
-                'indicators': signal.get('indicators', []),
-                'details': signal.get('details', '')
+                'symbol': signal.ativo,
+                'action': signal.direcao,
+                'price': float(signal.preco) if signal.preco else 0,
+                'confidence': float(signal.confianca) if signal.confianca else 0,
+                'timestamp': signal.criado_em.isoformat() if signal.criado_em else '',
+                'indicators': signal.indicadores.split(', ') if signal.indicadores else [],
+                'details': signal.detalhes or '',
+                'source': 'database'
             })
+        
+        # Add JSON signals if database is empty
+        if not formatted_signals and json_signals:
+            for signal in json_signals:
+                formatted_signals.append({
+                    'symbol': signal.get('symbol', 'Unknown'),
+                    'action': signal.get('action', 'unknown'),
+                    'price': float(signal.get('price', 0)),
+                    'confidence': float(signal.get('confidence', 0)),
+                    'timestamp': signal.get('timestamp', ''),
+                    'indicators': signal.get('indicators', []),
+                    'details': signal.get('details', ''),
+                    'source': 'json'
+                })
         
         return jsonify({
             'signals': formatted_signals,
@@ -339,6 +422,24 @@ def get_signals():
             'error': str(e),
             'timestamp': datetime.now().isoformat()
         })
+
+@app.route('/signals', methods=['GET'])
+def get_signals_legacy():
+    """Legacy endpoint for backward compatibility"""
+    try:
+        sinais = Signal.query.order_by(Signal.criado_em.desc()).limit(20).all()
+        lista_sinais = [
+            {
+                'ativo': s.ativo, 
+                'direcao': s.direcao, 
+                'horario': s.horario,
+                'preco': s.preco,
+                'confianca': s.confianca
+            } for s in sinais
+        ]
+        return jsonify({'signals': lista_sinais})
+    except Exception as e:
+        return jsonify({'signals': [], 'error': str(e)})
 
 @app.route('/api/stats', methods=['GET'])
 def get_stats():

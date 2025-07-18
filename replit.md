@@ -65,15 +65,25 @@ The application follows a modular service-oriented architecture with clear separ
 - **Technology**: Flask, SQLAlchemy, SQLite database
 - **Access**: Available at port 5000 with responsive web interface
 - **API Endpoints**: REST API for accessing signals and user data
+- **Database Models**: User and Signal models with full CRUD operations
+
+### 8. Database Service (`src/database_service.py`)
+- **Purpose**: Integration between trading bot and web database
+- **Functionality**: Automatically saves generated signals to database
+- **Endpoints**: Sends signals to `/api/signal` endpoint
+- **Error Handling**: Graceful fallback when database service unavailable
 
 ## Data Flow
 
 1. **Market Data Acquisition**: DataProvider generates synthetic market data for configured symbols
 2. **Technical Analysis**: SignalGenerator applies technical indicators to identify trading opportunities
 3. **Signal Filtering**: Applies confidence thresholds and rate limiting rules
-4. **Notification Dispatch**: Sends alerts via both Telegram and WhatsApp channels
-5. **History Persistence**: Stores generated signals in JSON format for tracking and analysis
-6. **Scheduled Execution**: Main loop runs every 15 minutes via schedule library
+4. **Multi-Channel Storage**: 
+   - JSON file storage via SignalHistory
+   - SQLite database storage via DatabaseService
+5. **Notification Dispatch**: Sends alerts via both Telegram and WhatsApp channels
+6. **Web Dashboard**: Real-time display of signals with user management
+7. **Scheduled Execution**: Main loop runs every 15 minutes via schedule library
 
 ## External Dependencies
 
@@ -106,10 +116,12 @@ TWILIO_WHATSAPP_TO=whatsapp:+1234567890
 - **Logging**: File-based logging with rotation
 
 ### Scalability Considerations
-- **Data Storage**: Currently uses JSON files; can be migrated to database for production
+- **Data Storage**: Hybrid approach with JSON files and SQLite database; ready for PostgreSQL migration
 - **Market Data**: Uses simulated data; integration point ready for live market feeds
 - **Service Discovery**: Modular design allows easy replacement of notification services
 - **Configuration**: Externalized configuration supports different environments
+- **Web Interface**: RESTful API design supports mobile app integration
+- **Real-time Updates**: Database integration enables live signal streaming
 
 ### Production Readiness
 - **Error Handling**: Comprehensive exception handling in all modules
