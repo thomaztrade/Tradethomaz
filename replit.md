@@ -59,6 +59,13 @@ The application follows a modular service-oriented architecture with clear separ
 - **Structure**: Timestamped log files in logs/ directory
 - **Levels**: Configurable log levels with formatted output
 
+### 7. Web Interface (`web_app.py`)
+- **Purpose**: Flask web dashboard for user management and signal viewing
+- **Features**: User registration/login, real-time signal display, statistics dashboard
+- **Technology**: Flask, SQLAlchemy, SQLite database
+- **Access**: Available at port 5000 with responsive web interface
+- **API Endpoints**: REST API for accessing signals and user data
+
 ## Data Flow
 
 1. **Market Data Acquisition**: DataProvider generates synthetic market data for configured symbols
