@@ -237,10 +237,10 @@ def register():
     
     data = request.get_json()
     if not data or not data.get('email') or not data.get('password'):
-        return jsonify({'message': 'Email e senha são obrigatórios'}), 400
+        return jsonify({'error': 'Email e senha são obrigatórios'}), 400
 
     if User.query.filter_by(email=data['email']).first():
-        return jsonify({'message': 'Email já cadastrado'}), 400
+        return jsonify({'error': 'Email já cadastrado'}), 400
 
     user = User(email=data['email'])
     user.set_password(data['password'])
