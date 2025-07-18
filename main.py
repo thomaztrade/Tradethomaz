@@ -73,19 +73,19 @@ def main():
         
         def format_signal_message(signal):
             """Format signal data into readable message"""
-            return f"""
-🚨 Trading Signal Alert 🚨
+            action_emoji = '🟢 COMPRAR' if signal['action'] == 'buy' else '🔴 VENDER'
+            return f"""❗️❗️❗️ SINAL DE TRADE ❗️❗️❗️
 
-Symbol: {signal['symbol']}
-Action: {signal['action'].upper()}
-Price: ${signal['price']:.2f}
-Confidence: {signal['confidence']:.1f}%
-Indicators: {', '.join(signal['indicators'])}
+📈 Ativo: {signal['symbol']}
+📊 Direção: {action_emoji}
+💰 Preço: ${signal['price']:.2f}
+📊 Confiança: {signal['confidence']:.1f}%
+🔍 Indicadores: {', '.join(signal['indicators'])}
+🕒 Horário: {signal['timestamp'][:19].replace('T', ' ')}
 
-Timestamp: {signal['timestamp']}
+⚠️ Aguarde confirmação antes de entrar.
 
-#ThomazTrade #TradingSignal
-            """.strip()
+#ThomazTrade #TradingSignal"""
         
         # Schedule signal checks every 15 minutes
         schedule.every(15).minutes.do(run_signal_check)

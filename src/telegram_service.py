@@ -45,7 +45,7 @@ class TelegramService:
                 "parse_mode": "HTML"
             }
             
-            response = requests.post(url, json=payload, timeout=10)
+            response = requests.post(url, data=payload, timeout=10)
             response.raise_for_status()
             
             result = response.json()
