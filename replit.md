@@ -84,6 +84,7 @@ The application follows a modular service-oriented architecture with clear separ
 - **Features**: Real-time signal display, interactive charts, responsive design
 - **Port**: Runs on port 3000 with proxy to Flask API on port 5000
 - **Authentication**: Simple demo login system for development testing
+- **Configuration**: Vite config with allowed hosts for Replit deployment access
 
 ## Data Flow
 
