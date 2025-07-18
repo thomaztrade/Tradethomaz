@@ -1,0 +1,20 @@
+{
+  "name": "workspace",
+  "version": "1.0.0",
+  "description": "A Python-based trading signal bot that analyzes market data using technical indicators and sends automated trade alerts to Telegram and WhatsApp.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@vitejs/plugin-react": "^4.7.0",
+    "axios": "^1.10.0",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "recharts": "^3.1.0",
+    "vite": "^6.3.5"
+  }
+}
